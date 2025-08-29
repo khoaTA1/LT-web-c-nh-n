@@ -11,3 +11,6 @@ Lớp: sáng thứ 5, sáng thứ 6
 * Ngày 23/08/2025:
   - Bắt đầu viết README và ghi lại nhật ký.
   - Hoàn thành bài thứ 2 của buổi học thứ 2: login servlet + session (bai2_tuan1).
+* Ngày 28/08/2025:
+  - Hoàn thành bài số 1 của buổi 1 tuần số 2: kết nối cơ sở dữ liệu SQLserver, thực hiện trang web đăng nhập đơn giản.
+  - Hoàn thành bài số 2 của buổi 1 tuần số 2: tiếp nối bài số 1, thực hiện thêm chức năng đăng ký và đăng xuất.
