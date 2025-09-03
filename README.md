@@ -14,3 +14,5 @@ Lớp: sáng thứ 5, sáng thứ 6
 * Ngày 28/08/2025:
   - Hoàn thành bài số 1 của buổi 1 tuần số 2: kết nối cơ sở dữ liệu SQLserver, thực hiện trang web đăng nhập đơn giản.
   - Hoàn thành bài số 2 của buổi 1 tuần số 2: tiếp nối bài số 1, thực hiện thêm chức năng đăng ký và đăng xuất.
+* Ngày 03/09/2025:
+  - Hoàn thành phần lớn bài số 3 của buổi 2 tuần số 2: thêm tính năng CRUD cho bảng category (thêm bảng category và cơ sở dữ liệu), tuy nhiên vẫn còn vấn đề ở upload ảnh icon lên web, đã thay đổi thư viện upload ảnh dựa trên nền tảng jakarta.
