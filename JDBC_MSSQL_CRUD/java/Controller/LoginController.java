@@ -64,7 +64,12 @@ public class LoginController extends HttpServlet {
 			if (isRememberMe) {
 				saveRemeberMe(resp, username);
 			}
-			resp.sendRedirect(req.getContextPath() + "/wp_t1/topbar.jsp");
+			
+			if (user.getUserName().equals("admin")) {
+				resp.sendRedirect(req.getContextPath() + "/wp_t1/admin/admin-page.jsp");
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/wp_t1/topbar.jsp");
+			}
 		} else {
 			alertMsg = "Tài khoản hoặc mật khẩu không đúng";
 			req.setAttribute("alert", alertMsg);

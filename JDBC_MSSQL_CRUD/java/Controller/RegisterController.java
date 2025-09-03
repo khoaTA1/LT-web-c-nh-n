@@ -18,7 +18,7 @@ import sv_impl.UserServiceImpl;
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = "/register")
 public class RegisterController extends HttpServlet {
-	public static final String REGISTER = "/register";
+	public static final String REGISTER = "wp_t1/register.jsp";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
