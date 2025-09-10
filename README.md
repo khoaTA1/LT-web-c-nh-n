@@ -18,3 +18,5 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Hoàn thành phần lớn bài số 3 của buổi 2 tuần số 2: thêm tính năng CRUD cho bảng category (thêm bảng category và cơ sở dữ liệu), tuy nhiên vẫn còn vấn đề ở upload ảnh icon lên web, đã thay đổi thư viện upload ảnh dựa trên nền tảng jakarta.
 * Ngày 09/09/2025:
   - Nộp bài tập tuần 3: Hoàn thành các chức năng đăng nhập vào tài nguyên với các role id tương ứng, lọc url; chưa hoàn thành chức năng hiển thị category ứng với các role id và chức năng thêm, xem, chỉnh sửa đối với từng role.
+* Ngày 10/09/2025:
+  - Hoàn thiện những chức năng còn lại của bài tập tuần 3.
