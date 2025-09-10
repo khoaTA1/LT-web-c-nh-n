@@ -10,7 +10,7 @@
 </head>
 <body>
 	<form action="/JPA/login" method="POST">
-		<h2>Tạo tài khoản mới</h2>
+		<h2>Đăng nhập</h2>
 		<c:if test="${alert !=null}">
 			<h3 class="alert alertdanger">${alert}</h3>
 		</c:if>
@@ -32,6 +32,7 @@
 				</div>
 			</label>
 		</section>
-		<button type="submit">Đăng nhập</button> | <a href="${pageContext.request.contextPath}/wp_t1/forgetpass.jsp">Quên mật khẩu?</a>
+		<button type="submit">Đăng nhập</button> | <a href="${pageContext.request.contextPath}/views/general/forgetpass.jsp">Quên mật khẩu?</a><br>
+		<a href="${pageContext.request.contextPath}/views/general/register.jsp">Chưa có tài khoản? Đăng ký ngay</a>
 </body>
 </html>

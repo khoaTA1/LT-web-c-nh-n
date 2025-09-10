@@ -11,6 +11,7 @@ public interface CategoryService {
 	Category get(int id);
 	Category get(String name);
 	List<Category> getAll(int rowEachPage, int startIndex);
+	List<Category> getAll(int rowEachPage, int startIndex, int uid);
 	List<Category> search(String keyword);
 	long countRecord();
 }

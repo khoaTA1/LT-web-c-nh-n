@@ -3,6 +3,7 @@ package Impl;
 import java.io.File;
 import java.util.List;
 
+import Constant.DirectoryPath;
 import DAO.CategoryDaoImpl;
 import Entity.Category;
 import Service.CategoryService;
@@ -21,11 +22,10 @@ public class CategoryServiceImpl implements CategoryService {
 	public void edit(Category category) {
 		Category oldCategory = categoryDao.findById(category.getId());
 		
-		if (oldCategory.getImages() != null) {
+		if (oldCategory != null && !oldCategory.getImages().isEmpty()) {
 			final String oldIconName = oldCategory.getImages();
-			final String dir = "C:\\Users\\khoat\\Documents\\HOC\\LT_web\\save\\1a\\KN_CSDL\\src\\main\\resources\\upload\\categoryIcons";
 			
-			File oldIcon = new File(dir + oldIconName);
+			File oldIcon = new File(DirectoryPath.dir + "\\" + oldIconName);
 			
 			if (oldIcon.exists()) {
 				oldIcon.delete();
@@ -53,6 +53,11 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public List<Category> getAll(int rowEachPage, int startIndex) {
 		return categoryDao.findAll(rowEachPage, startIndex);
+	}
+	
+	@Override
+	public List<Category> getAll(int rowEachPage, int startIndex, int uid) {
+		return categoryDao.findAll(rowEachPage, startIndex, uid);
 	}
 	
 	@Override

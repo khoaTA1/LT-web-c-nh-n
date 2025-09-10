@@ -74,6 +74,6 @@
 		</label>
 	</section>
 	
-	<button type="submit">Đăng kí</button> | <a href="${pageContext.request.contextPath}/wp_t1/login.jsp">Đăng nhập</a>
+	<button type="submit">Đăng kí</button> | <a href="${pageContext.request.contextPath}/views/general/login.jsp">Đăng nhập</a>
 </body>
 </html>

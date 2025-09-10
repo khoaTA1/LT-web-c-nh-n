@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin: list categories</title>
+<title>Manager: list categories</title>
 </head>
 <body>
 
@@ -32,6 +32,7 @@
 				<c:url value="/image?fname=${cate.getImages()}" var="imgUrl"></c:url>
 				<td><img height="150" width="200" src="${imgUrl}" /></td>
 				<td>${cate.getCategoryName()}</td>
+				<td>${cate.getUid() }</td>
 				<td><a href="<c:url value='/categoryedit?id=${cate.getId()}'/>"
 					class="center">Sửa</a> | <a
 					href="<c:url value='/categorydelete?id=${cate.getId()}'/>"

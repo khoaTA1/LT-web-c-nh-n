@@ -11,6 +11,7 @@ public interface CategoryDao {
 	Category findById(int id);
 	Category findByName(String name);
 	List<Category> findAll(int rowEachPage, int startIndex);
+	List<Category> findAll(int rowEachPage, int startIndex, int uid);
 	List<Category> search(String keyword);
 	long countRecord();
 }

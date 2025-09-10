@@ -24,6 +24,6 @@
 			</label>
 		</section>
 		
-		<button type="submit">Nhập mã</button> | <a href="${pageContext.request.contextPath}/wp_t1/forgetpass.jsp">Gửi lại mã?</a>
+		<button type="submit">Nhập mã</button> | <a href="${pageContext.request.contextPath}/views/general/forgetpass.jsp">Gửi lại mã?</a>
 </body>
 </html>

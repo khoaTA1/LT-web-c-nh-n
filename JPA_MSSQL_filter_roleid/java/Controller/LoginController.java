@@ -64,11 +64,13 @@ public class LoginController extends HttpServlet {
 			if (isRememberMe) {
 				saveRemeberMe(resp, username);
 			}
-			
-			if (user.getUserName().equals("admin")) {
+			String uname = user.getUserName();
+			if (uname.equals("admin")) {
 				resp.sendRedirect(req.getContextPath() + "/views/admin/admin-page.jsp");
+			} else if (uname.equals("manager")){
+				resp.sendRedirect(req.getContextPath() + "/views/manager/manager-page.jsp");
 			} else {
-				resp.sendRedirect(req.getContextPath() + "/views/general/topbar.jsp");
+				resp.sendRedirect(req.getContextPath() + "/views/user/user-page.jsp");
 			}
 		} else {
 			alertMsg = "Tài khoản hoặc mật khẩu không đúng";

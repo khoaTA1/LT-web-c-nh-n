@@ -13,11 +13,13 @@ import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 
 import Constant.DirectoryPath;
 import Entity.Category;
+import Entity.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import Service.CategoryService;
 import Impl.CategoryServiceImpl;
 
@@ -31,7 +33,14 @@ public class CategoryAddController extends HttpServlet {
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+		HttpSession ss = req.getSession();
+		User role = (User) ss.getAttribute("account");
+		
+		if (role.getRoleid() == 3) {
+			req.getRequestDispatcher("/views/admin/add-category.jsp").forward(req, resp);
+		} else if (role.getRoleid() == 2) {
+			req.getRequestDispatcher("/views/manager/add-category.jsp").forward(req, resp);
+		}
 	}
 
 	@Override
@@ -39,6 +48,9 @@ public class CategoryAddController extends HttpServlet {
 		Category category = new Category();
 		DiskFileItemFactory diskFileItemFactory = DiskFileItemFactory.builder().get();
 		JakartaServletFileUpload servletFileUpload = new JakartaServletFileUpload(diskFileItemFactory);
+		HttpSession ss = req.getSession();
+		
+		User uid = (User) ss.getAttribute("account");
 		
 		try {
 			resp.setContentType("text/html");
@@ -48,7 +60,7 @@ public class CategoryAddController extends HttpServlet {
 			for (FileItem item : items) {
 				if (item.getFieldName().equals("name")) {
 					category.setCategoryName(item.getString(StandardCharsets.UTF_8));
-				} else if (item.getFieldName().equals("icon")) {
+				} else if (item.getFieldName().equals("icon") && !item.getName().isEmpty()) {
 					String originalFileName = item.getName();
 					int index = originalFileName.lastIndexOf(".");
 					String ext = originalFileName.substring(index + 1);
@@ -60,8 +72,19 @@ public class CategoryAddController extends HttpServlet {
 					category.setImages("categoryIcons/" + fileName);
 				}
 			}
+
+			category.setUid(uid.getId());
 			categoryService.insert(category);
-			resp.sendRedirect("/JPA/views/admin/admin-page.jsp");
+			
+			int roleid = uid.getRoleid();
+			if (roleid == 3) {
+				resp.sendRedirect("/JPA/views/admin/admin-page.jsp");
+			} else if (roleid == 2) {
+				resp.sendRedirect("/JPA/views/manager/manager-page.jsp");
+			} else {
+				resp.sendRedirect("/JPA/views/user/user-page.jsp");
+			}
+			
 		} catch (FileUploadException e) {
 			e.printStackTrace();
 		} catch (Exception e) {

@@ -45,9 +45,13 @@ public class CategoryDaoImpl implements CategoryDao {
 			
 			Category ent = EM.find(Category.class, category.getId());
 			
-			ent.setCategoryName(category.getCategoryName());
-			ent.setUid(category.getUid());
-			ent.setImages(category.getImages());
+			if (ent != null) {
+				ent.setCategoryName(category.getCategoryName());
+				ent.setUid(category.getUid());
+				ent.setImages(category.getImages());
+			} else {
+				System.err.println("!!!!!!!Không tìm thấy Category với ID: " + category.getId());
+			}
 			
 			trans.commit();
 		} catch (Exception e) {
@@ -124,6 +128,28 @@ public class CategoryDaoImpl implements CategoryDao {
 			TypedQuery<Category> query = EM.createQuery(jpql, Category.class);
 			query.setFirstResult(startIndex);
 			query.setMaxResults(rowEachPage);
+			List<Category> list = query.getResultList();
+			
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			EM.close();
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public List<Category> findAll(int rowEachPage, int startIndex, int uid) {
+		EntityManager EM = JPAconfig.getEntityManager();
+		String jpql = "SELECT o FROM Category o WHERE o.uid = :userid";
+		
+		try {
+			TypedQuery<Category> query = EM.createQuery(jpql, Category.class);
+			query.setFirstResult(startIndex);
+			query.setMaxResults(rowEachPage);
+			query.setParameter("userid", uid);
 			List<Category> list = query.getResultList();
 			
 			return list;
