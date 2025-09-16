@@ -22,3 +22,5 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Hoàn thiện những chức năng còn lại của bài tập tuần 3.
 * Ngày 11/09/2025:
   - Nộp bài tập 1 tuần 4: chưa hoàn thiện, chạy thử sitemesh với 2 template mapping web và admin, chưa hoàn thành chức năng profile.
+* Ngày 16/09/2025:
+  - Nộp bài tập 2 tuần 4: chưa hoàn thiện, mới hoàn thành CRUD cho user (đã test) và CRUD cho category (chưa test), chưa hoàn thành CRUD cho video.
