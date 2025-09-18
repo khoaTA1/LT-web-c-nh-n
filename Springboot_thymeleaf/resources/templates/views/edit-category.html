@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/admin_layout.html}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form th:action="@{/category/edit}" method="post" th:object="${category}"
+		enctype="multipart/form-data">
+		<input value="${category.id }" hidden="">
+		<div class="form-group">
+			<label for="categoryName">Tên phân loại:</label> 
+			<input type="text" class="form-control"
+				th:field="*{categoryName}"/>
+		</div>
+		<div class="form-group">
+			<div th:if="*{images} != null">
+				<img class ="img-responsive" width="100px"
+					th:src="@{'/image?fname=' + *{images}}"
+					alt="Icon">
+			</div> 
+		</div>
+		<button type="submit" class="btn btn-default">Edit</button>
+		<button type="reset" class="btn btn-primary">Reset</button>
+	</form>
+</body>
+</html>

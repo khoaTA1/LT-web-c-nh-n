@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/admin_layout.html}">
+<head>
+<meta charset="UTF-8">
+<title>Thêm category</title>
+</head>
+<body>
+	<section class="row" layout:fragment="content">
+		<form th:action="@{/category/add}" method="post"
+			th:object="${category}" enctype="multipart/form-data">
+			<h2>Thêm category</h2>
+			<div class="mb-3" th:if="${msg != null}">
+				<h3 class="alert alert-danger" th:text="${msg}"></h3>
+			</div>
+			<section>
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="categoryname" class="form-label">Category
+							Name:</label> <input type="text" class="form-control"
+							th:field="*{categoryName}" aria-describedby="nameid"
+							placeholder="Category Name">
+					</div>
+				</div>
+			</section>
+
+			<div class="form-group">
+				<label>Ảnh đại diện</label> <input type="file" name="icon" />
+			</div>
+			<button type="submit">Tạo category</button>
+		</form>
+	</section>
+</body>
+</html>
