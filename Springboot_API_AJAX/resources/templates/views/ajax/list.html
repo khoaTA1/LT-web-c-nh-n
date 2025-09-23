@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/admin_layout.html}">
+<head>
+<meta charset="UTF-8">
+<title>Danh sách category</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+	<!-- Phần hiển thị danh sách: gồm đoạn html cố định và ajax lấy dữ liệu động -->
+	<section class="row" layout:fragment="content">
+		<div class="col mt-4">
+			<div class="card">
+				<div class="card-header">Danh sách category</div>
+				<div class="card-body">
+					<div th:if="@{msg != null}" class="alert alert-primary"
+						role="alert">
+						<i th:text="${msg}">Thông báo</i>
+					</div>
+					<table class="table table-striped table-responsive">
+						<thead class="thead-inverse">
+							<tr>
+								<th>Id</th>
+								<th>Icon</th>
+								<th>Name</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody id="categoryTableBody">
+							<!-- dữ liệu động -->
+						</tbody>
+					</table>
+
+					<div>
+						Trang: <span id="currentPage">1</span> / <span id="totalPage">1</span>
+					</div>
+
+
+					<!-- AJAX -->
+					<script>
+						var contextPath = ''; // Gán thủ công nếu cần
+
+						function loadCategories(page = 1) {
+					        $.ajax({
+					            url: '/api/category/getAllCategory',
+					            method: 'POST',
+					            data: {
+					                rowEachPage: 10
+					            },
+					            success: function(data) {
+					                var tr = [];
+					                $.each(data.categories, function(index, cate) {
+					                    tr.push('<tr>');
+					                    tr.push('<td>' + cate.id + '</td>');
+					                    tr.push('<td><img src="/images?fname=' + cate.images + '" style="width:70px" alt=""></td>');
+					                    tr.push('<td>' + cate.categoryName + '</td>');
+					                    tr.push('<td>' +
+					                    	    '<button onclick="showEditCategoryModal('
+					                    	    + cate.id + ', \'' + cate.categoryName + '\', \'' + cate.images + '\')"'
+					                    	    + ' class="btn btn-outline-warning"><i class="fa fa-edit"></i> sửa</button> ' +
+					                    	    '<a href="#" data-id="' + cate.id + '" class="btn btn-outline-danger btn-delete-category"><i class="fa fa-trash"></i> Xóa</a>' +
+					                    	    '</td>');
+					                    tr.push('</tr>');
+					                });
+					                $('#categoryTableBody').html(tr.join(''));
+					                $('#currentPage').text(data.pages);
+					                $('#totalPage').text(data.totalPages);
+					            },
+					            error: function(xhr, status, error) {
+					                alert("Lỗi khi tải danh sách: " + error);
+					            }
+					        });
+					    }
+						
+						$(document).ready(function() {
+						    loadCategories(); // Gọi khi trang tải lần đầu
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+
+		<!-- Phần edit category: gồm đoạn html cố định và ajax sử dụng modal bootstrap CSS và JS -->
+		<div class="modal" tabindex="-1" role="dialog"
+			id="updateCategoryInfoModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Update Category</h5>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="card">
+							<div class="card-header">
+								<h5>
+									<i class="far fa-address-card mr-1"></i>Category
+								</h5>
+							</div>
+							<div class="card-body pb-0">
+								<p id="updateCategoryInfoModalId"></p>
+								<p id="updateCategoryInfoModalName"></p>
+								<p id="updateCategoryInfoModalIcon"></p>
+							</div>
+						</div>
+						<div class="card mt-2">
+							<div class="card-header">
+								<h5>
+									<i class="far fa-address-card mr-1"></i>Update Category
+								</h5>
+							</div>
+							<div class="card-body pb-0">
+								<form id="updateCategory" method="post" onsubmit="return false;"
+									enctype="multipart/form-data">
+									<div class="form-group">
+										<label for="categoryName">Category Name</label> <input
+											type="text" class="form-control" id="categoryName_up"
+											name="categoryName">
+									</div>
+									<div class="form-group">
+										<label for="new_icon">Icon</label> <input type="file"
+											class="form-control" id="icon_up" name="icon">
+									</div>
+									<input type="hidden" id="categoryId_up" name="categoryId">
+									<div class="form-group row">
+										<div class="col text-center">
+											<button type="submit" class="btn btn-primary btn-block">Cập
+												nhật</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Đóng</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			/* Edit */
+			function showEditCategoryModal(categoryId, categoryName, icon, btn) {/* $("input[name=categoryActive][value=" + active + "]").prop('checked',
+							true); */
+				$('#updateCategoryInfoModalId')[0].innerText = "Category ID: "
+						+ categoryId;
+				$('#updateCategoryInfoModalName')[0].innerText = "Category Name: "
+						+ categoryName;
+				$('#updateCategoryInfoModalIcon')[0].innerText = 'Icon: '
+						+ icon;
+				/* $('#updateCategoryInfoModalActive')[0].innerText = 'Icon: ' + (active
+				 == 'true' ? 'Đang cho phép bán' : 'Đã vô hiệu hóa'); */
+				$('#categoryName_up')[0].value = categoryName;
+				$('#categoryId_up')[0].value = categoryId;
+				$('#updateCategoryInfoModal').modal('show');
+			}
+			$("form#updateCategory").submit(function(e) {
+				e.preventDefault();
+				var formData = new FormData(this);
+				$.ajax({
+					url : contextPath + '/api/category/updateCategory',
+					type : 'PUT',
+					dataType : "json",
+					data : formData,
+					success : function(data) {
+						$('#updateCategoryInfoModal').modal('hide');
+						$('#updateCategory')[0].reset();
+						loadCategories();
+					},
+					cache : false,
+					contentType : false,
+					processData : false
+				});
+			});
+		</script>
+
+		<script type="text/javascript">
+		$(document).on('click', '.btn-delete-category', function(e) {
+    		e.preventDefault();
+   			var id = $(this).data('id');
+   			var parent = $(this).closest('tr');
+    		if (confirm('Bạn có chắc chắn muốn xóa?')) {
+       		$.ajax({
+         		type: "DELETE",
+            	url: contextPath + '/api/category/deleteCategory?categoryId=' + id,
+            	success: function() {
+               		parent.fadeOut('slow', function() {
+                  		$(this).remove();
+                	});
+            
+                loadCategories();
+            	},
+            	error: function(xhr) {
+                alert("Lỗi khi xóa: " + xhr.responseText);
+            	}
+        	});
+   		}
+	});
+</script>
+	</section>
+</body>
+</html>
