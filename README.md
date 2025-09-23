@@ -24,3 +24,7 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Nộp bài tập 1 tuần 4: chưa hoàn thiện, chạy thử sitemesh với 2 template mapping web và admin, chưa hoàn thành chức năng profile.
 * Ngày 16/09/2025:
   - Nộp bài tập 2 tuần 4: chưa hoàn thiện, mới hoàn thành CRUD cho user (đã test) và CRUD cho category (chưa test), chưa hoàn thành CRUD cho video.
+* Ngày 18/09/2025:
+  - Nộp bài tập 1 tuần 5: thực hành thymeleaf.
+* Ngày 23/09/2025:
+  - Nộp bài tập 2 tuần 5: hoàn thành CRUD api+ajax cho Category, chưa hoàn thành CRUD cho product (chỉ mới hoàn thành entity, repo, service và implement).
