@@ -28,3 +28,5 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Nộp bài tập 1 tuần 5: thực hành thymeleaf.
 * Ngày 23/09/2025:
   - Nộp bài tập 2 tuần 5: hoàn thành CRUD api+ajax cho Category, chưa hoàn thành CRUD cho product (chỉ mới hoàn thành entity, repo, service và implement).
+* Ngày 26/09/2025:
+  - Nộp bài tập tuần 6: GraphQL, chưa hoàn front end render bằng AJAX, mới đến bước test API bằng postman.
