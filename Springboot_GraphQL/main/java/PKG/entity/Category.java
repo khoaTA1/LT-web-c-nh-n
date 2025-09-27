@@ -2,8 +2,10 @@ package PKG.entity;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -40,16 +42,24 @@ public class Category implements Serializable {
 	@Column(name = "images", columnDefinition = "nvarchar(max)")
 	private String images;
 	
-	@ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "users_categories", // Tên bảng trung gian
-            joinColumns = @JoinColumn(name = "category_id"), // Khóa ngoại từ bảng Category
-            inverseJoinColumns = @JoinColumn(name = "user_id") // Khóa ngoại từ bảng User
-    )
-	@JsonManagedReference
+	@ManyToMany(mappedBy = "categories")
+	@JsonBackReference
     private Set<User> users = new HashSet<>();
 	
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
 	@JsonManagedReference
 	private Set<Product> products;
+	
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) return true;
+	    if (o == null || getClass() != o.getClass()) return false;
+	    Category category = (Category) o;
+	    return id == category.id;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Objects.hash(id);
+	}
 }

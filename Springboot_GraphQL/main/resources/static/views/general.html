@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Management (GraphQL)</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+table {
+	width: 80%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+table, th, td {
+	border: 1px solid #aaa;
+}
+
+th, td {
+	padding: 10px;
+	text-align: left;
+}
+
+form {
+	margin-bottom: 30px;
+}
+</style>
+</head>
+<body>
+
+	<h1>User Management (GraphQL)</h1>
+	<!-- Navigation -->
+	<a href=""></a>
+
+	<!-- USER TABLE -->
+	<table id="user-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Email</th>
+				<th>Full Name</th>
+				<th>Phone</th>
+				<th>Categories</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+
+	<!-- CREATE USER -->
+	<h2>Create User</h2>
+	<form id="create-user-form">
+		<label>Email:</label> <input type="email" id="email" required>
+		<label>Full name:</label> <input type="text" id="fname"> <label>Phone:</label>
+		<input type="text" id="phone"> <label>Password:</label> <input
+			type="password" id="password" required>
+		<button type="submit">Create</button>
+	</form>
+
+	<!-- EDIT USER -->
+	<h2>Edit User</h2>
+	<form id="edit-user-form" style="display: none;">
+		<input type="hidden" id="edit-id"> <label>Email:</label> <input
+			type="email" id="edit-email"> <label>Full Name:</label> <input
+			type="text" id="edit-fname"> <label>Phone:</label> <input
+			type="text" id="edit-phone"> <label>Password:</label> <input
+			type="password" id="edit-passwd">
+		<button type="submit">Update</button>
+		<button type="button" onclick="$('#edit-user-form').hide()">Cancel</button>
+	</form>
+
+	<!-- Modal chọn category -->
+	<div id="category-modal"
+		style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); background: #fff; border: 1px solid #aaa; padding: 20px; z-index: 1000; max-height: 70vh; overflow-y: auto; width: 400px;">
+		<h3>
+			Choose categories for user <span id="modal-user-email"></span>
+		</h3>
+		<form id="category-form">
+			<div id="category-list"
+				style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 15px;"></div>
+			<button type="submit">Save categories</button>
+			<button type="button" id="category-modal-close">Cancel</button>
+		</form>
+		<hr>
+		<h4>Add new category</h4>
+		<input type="text" id="new-category-name"
+			placeholder="New category name">
+		<button type="button" id="add-new-category-btn">Add Category</button>
+	</div>
+
+	<!-- Overlay -->
+	<div id="modal-overlay"
+		style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
+	<script>
+    const graphqlUrl = 'http://localhost:8080/graphql';
+
+    //--------------------------------------------------------------
+    // Fetch users
+    function fetchUsers() {
+        const query = `
+        {
+        	getAllUsers {
+            	id
+            	fullName
+            	email
+            	phone
+            	categories {
+        			id
+        			categoryName
+        		}
+        	}
+        }`;
+
+        $.ajax({
+            url: graphqlUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ query }),
+            success: function(res) {
+                const users = res.data.getAllUsers;
+                const tbody = $('#user-table tbody');
+                tbody.empty();
+
+                users.forEach(user => {
+                	const categories = user.categories.map(c => c.categoryName).join(", ");
+                	
+                    tbody.append(`
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.email}</td>
+                            <td>${user.fullName}</td>
+                            <td>${user.phone}</td>
+                            <td>${categories}</td>
+                            <td>
+                                <button class="edit-btn" data-id="${user.id}">Edit</button>
+                                <button class="delete-btn" data-id="${user.id}">Delete</button>
+                                <button class="choose-category-btn" data-id="${user.id}">Choose an available category</button>
+                                <button class="add-category-btn" data-id="${user.id}">Add a category</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            },
+            error: function(err) {
+                console.error('Fetch error:', err);
+            }
+        });
+    }
+
+    // Create user
+    $('#create-user-form').submit(function(e) {
+        e.preventDefault();
+
+        const email = $('#email').val();
+        const fname = $('#fname').val();
+        const phone = $('#phone').val();
+        const passwd = $('#password').val();
+        
+        const mutation = `
+        mutation {
+            createUser(input: { email: "${email}", fullName: "${fname}", phone: "${phone}", passwd: "${passwd}"}) {
+                id
+                email
+                fullName
+                phone
+            }
+        }`;
+
+        $.ajax({
+            url: graphqlUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ query: mutation }),
+            success: function() {
+                fetchUsers();
+                $('#create-user-form')[0].reset();
+                alert("User created!");
+            },
+            error: function(err) {
+                alert("Error creating user");
+                console.error(err);
+            }
+        });
+    });
+
+    // Handle edit button
+    $('#user-table').on('click', '.edit-btn', function() {
+        const userId = $(this).data('id');
+
+        const query = `
+        {
+            getUserById(id: ${userId}) {
+                id
+                email
+                fullName
+                phone
+                passwd
+            }
+        }`;
+
+        $.ajax({
+            url: graphqlUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ query }),
+            success: function(res) {
+                const user = res.data.getUserById;
+                $('#edit-id').val(user.id);
+                $('#edit-fname').val(user.fullName);
+                $('#edit-email').val(user.email);
+                $('#edit-phone').val(user.phone);
+                $('#edit-passwd').val(user.passwd);
+                $('#edit-user-form').show();
+            },
+            error: function(err) {
+                alert("Error loading user");
+                console.error(err);
+            }
+        });
+    });
+
+    // Update user
+    $('#edit-user-form').submit(function(e) {
+        e.preventDefault();
+
+        const id = $('#edit-id').val();
+        const email = $('#edit-email').val();
+        const fname = $('#edit-fname').val();
+        const phone = $('#edit-phone').val();
+        const passwd = $('#edit-passwd').val();
+        
+        let fields = `id: ${id}`;
+        
+        if (email) fields += `, email: "${email}"`;
+        if (fname) fields += `, fullName: "${fname}"`;
+        if (phone) fields += `, phone: "${phone}"`;
+        if (passwd) fields += `, passwd: "${passwd}"`;
+
+        const mutation = `
+        mutation {
+            updateUser(input: {${fields}}) {
+                id
+                email
+                fullName
+                phone
+            }
+        }`;
+
+        $.ajax({
+            url: graphqlUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ query: mutation }),
+            success: function() {
+                fetchUsers();
+                $('#edit-user-form').hide();
+                alert("User updated!");
+            },
+            error: function(err) {
+                alert("Error updating user");
+                console.error(err);
+            }
+        });
+    });
+
+    // Delete user
+    $('#user-table').on('click', '.delete-btn', function() {
+        const userId = $(this).data('id');
+
+        if (confirm("Are you sure to delete this user?")) {
+            const mutation = `
+            mutation {
+                deleteUser(id: ${userId})
+            }`;
+
+            $.ajax({
+                url: graphqlUrl,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ query: mutation }),
+                success: function() {
+                    fetchUsers();
+                    alert("User deleted!");
+                },
+                error: function(err) {
+                    alert("Error deleting user");
+                    console.error(err);
+                }
+            });
+        }
+    });
+
+    /// Load users on page load
+    $(document).ready(function() {
+        fetchUsers();
+    });
+    
+    //-------------------------------------------------------------------------
+ 	// phần category
+	let selectedUserId = null;
+	let userCategories = [];
+
+	// Fetch all categories
+	function fetchCategories() {
+  		const query = `
+    	{
+        	getAllCategories {
+            	id
+            	categoryName
+        	}
+    	}`;
+
+    	$.ajax({
+        	url: graphqlUrl,
+        	method: 'POST',
+        	contentType: 'application/json',
+        	data: JSON.stringify({ query }),
+        	success: function(res) {
+            	const categories = res.data.getAllCategories;
+            	const categoryList = $('#category-list');
+            	categoryList.empty();
+
+            	categories.forEach(category => {
+                	// Nếu user đã có category thì làm mờ
+                	const isUserHasCategory = userCategories.some(c => c.id === category.id);
+                	categoryList.append(`
+                    	<div style="opacity: ${isUserHasCategory ? 0.5 : 1};">
+                        	<input type="checkbox" id="category-${category.id}" data-id="${category.id}" ${isUserHasCategory ? 'disabled' : ''}>
+                        	<label for="category-${category.id}">${category.categoryName}</label>
+                    	</div>
+                `	);
+            	});
+
+            	// Hiện danh sách category user đang có kèm nút xóa
+            	renderUserCategories(); 
+        	},
+        	error: function(err) {
+            	console.error('Fetch categories error:', err);
+       		}
+    	});
+	}
+
+	// Fetch categories user đã có để biết disable checkbox
+	function fetchUserCategories(userId, callback) {
+    	const query = `
+    	{
+       		getUserById(id: ${userId}) {
+            	categories {
+                	id
+                	categoryName
+            	}
+        	}
+    	}`;
+
+    	$.ajax({
+        	url: graphqlUrl,
+        	method: 'POST',
+        	contentType: 'application/json',
+        	data: JSON.stringify({ query }),
+        	success: function(res) {
+            	userCategories = res.data.getUserById.categories || [];
+            	callback();
+        	},
+        	error: function(err) {
+            	console.error('Fetch user categories error:', err);
+        	}
+    	});
+	}
+
+	// Hiện danh sách category user đang có + nút xóa
+	function renderUserCategories() {
+    	// Xoá vùng hiện tại nếu có rồi tạo lại
+    	$('#user-current-categories').remove();
+
+    	let html = `<div id="user-current-categories" style="border-top: 1px solid #ddd; margin-top: 15px; padding-top: 10px;">
+        	<h4>User's current categories</h4>
+        	<ul style="list-style: none; padding-left: 0;">`;
+
+    	if (userCategories.length === 0) {
+        	html += '<li>No categories assigned</li>';
+    	} else {
+        	userCategories.forEach(cat => {
+            	html += `<li style="margin-bottom:5px;">
+                	${cat.categoryName} 
+                	<button class="remove-category-btn" data-cat-id="${cat.id}" style="color:red; margin-left:10px;">Remove</button>
+            	</li>`;
+        	});
+    	}
+
+    	html += '</ul></div>';
+
+    	$('#category-list').after(html);
+	}
+
+	// Mở modal chọn category cho user
+	$('#user-table').on('click', '.choose-category-btn', function () {
+    	selectedUserId = $(this).data('id');
+    	const userEmail = $(this).closest('tr').find('td:nth-child(2)').text();
+    	$('#modal-user-email').text(userEmail);
+
+    	$('#category-modal').show();
+    	$('#modal-overlay').show();
+
+    	// Lấy category của user trước, rồi mới fetch toàn bộ category để disable checkbox đúng
+    	fetchUserCategories(selectedUserId, fetchCategories);
+	});
+
+	// Xử lý submit lưu category đã chọn (chỉ các category mới - checkbox chưa disabled)
+	$('#category-form').submit(function (e) {
+    	e.preventDefault();
+
+    	const selectedCategories = [];
+    	$('#category-list input:not(:disabled):checked').each(function () {
+        	selectedCategories.push($(this).data('id'));
+    	});
+
+    	// Cộng thêm category hiện tại của user để không mất category đã có
+    	const allCategoryIds = userCategories.map(c => c.id).concat(selectedCategories);
+
+    	const mutation = `
+    	    mutation {
+            	updateUserCategories(userId: ${selectedUserId}, categoryIds: [${allCategoryIds.join(',')}]) {
+                	id
+                	email
+                	fullName
+                	categories {
+                    	id
+                    	categoryName
+                	}
+            	}
+        	}`;
+
+    	$.ajax({
+        	url: graphqlUrl,
+        	method: 'POST',
+        	contentType: 'application/json',
+        	data: JSON.stringify({ query: mutation }),
+        	success: function (res) {
+            	alert('Categories updated for user');
+            	userCategories = res.data.updateUserCategories.categories || [];
+            	fetchCategories(); // Reload category list
+            	fetchUsers();
+        	},
+        	error: function (err) {
+            	console.error('Error updating user categories:', err);
+            	alert('Error updating categories');
+        	}
+    	});
+	});
+
+	// Xử lý nút đóng modal
+	$('#category-modal-close').click(function() {
+    	$('#category-modal').hide();
+    	$('#modal-overlay').hide();
+	});
+
+	// Xử lý nút xóa category khỏi user
+	$('#category-modal').on('click', '.remove-category-btn', function() {
+    	const catId = $(this).data('cat-id');
+	
+	    // Xoá category khỏi danh sách userCategories trước (làm UI nhanh)
+    	userCategories = userCategories.filter(c => c.id !== catId);
+
+   	 	// Gọi mutation update lại danh sách category cho user
+    	const categoryIds = userCategories.map(c => c.id);
+
+    	const mutation = `
+        	mutation {
+            	updateUserCategories(userId: ${selectedUserId}, categoryIds: [${categoryIds.join(',')}]) {
+                	id
+                	email
+                	fullName
+                	categories {
+                    	id
+                    	categoryName
+                	}
+            	}
+        	}`;
+
+    	$.ajax({
+        	url: graphqlUrl,
+        	method: 'POST',
+        	contentType: 'application/json',
+        	data: JSON.stringify({ query: mutation }),
+        	success: function (res) {
+           		alert('Category removed from user');
+            	userCategories = res.data.updateUserCategories.categories || [];
+            	fetchCategories();
+        	},
+        	error: function (err) {
+            	alert('Error removing category');
+            	console.error(err);
+        	}
+    	});
+	});
+
+</script>
+
+</body>
+</html>

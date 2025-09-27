@@ -26,6 +26,7 @@ type Mutation {
   	createUser(input: UserInput!): User
   	updateUser(input: UserUpdateInput!): User
   	deleteUser(id: ID!): Boolean
+  	updateUserCategories(userId: ID!, categoryIds: [ID!]!): User
 }
 
 type Query {
