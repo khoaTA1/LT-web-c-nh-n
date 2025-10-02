@@ -30,5 +30,7 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Nộp bài tập 2 tuần 5: hoàn thành CRUD api+ajax cho Category, chưa hoàn thành CRUD cho product (chỉ mới hoàn thành entity, repo, service và implement).
 * Ngày 26/09/2025:
   - Nộp bài tập tuần 6: GraphQL, chưa hoàn front end render bằng AJAX, mới đến bước test API bằng postman.
-* Ngày 27/09/225:
+* Ngày 27/09/2025:
   - Tiếp tục làm bài tập tuần 6: Thêm CRUD cho bảng category, đã test front end AJAX cho user và category.
+* Ngày 02/10/2025:
+  - Nộp bài tập 1 tuần 7: validation và interceptor.
