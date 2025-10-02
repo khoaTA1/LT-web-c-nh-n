@@ -1,0 +1,213 @@
+package khoa.controller;
+
+import java.io.File;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import khoa.Constant.DirectoryPath;
+import khoa.entity.Category;
+import khoa.entity.Video;
+import khoa.service.CategoryService;
+import khoa.service.VideoService;
+
+@Controller
+@RequestMapping("video")
+public class VideoController {
+	@Autowired
+	VideoService videoserv;
+	
+	@Autowired
+	CategoryService cateserv;
+
+	// Thêm
+	@GetMapping("add/{id}")
+	public String add(ModelMap model, @PathVariable(name = "id") int cateId) {
+		Category cate = cateserv.findById(cateId).get();
+		
+		model.addAttribute("category", cate);
+		
+		return "general/video/add";
+	}
+
+	@PostMapping("add")
+	public String add(HttpServletRequest req, ModelMap model, @RequestParam(name = "videoname") String videoname,
+			@RequestParam(name = "video") MultipartFile file, 
+			@RequestParam(name = "cateid") int cateid) {
+		HttpSession ss = req.getSession();
+		Category category = (Category) ss.getAttribute("category");
+
+		Video video = new Video();
+		video.setVideoName(videoname);
+		
+		video.setCateid(category.getId());
+		
+		if (file == null || file.isEmpty()) {
+			model.addAttribute("msg", "Vui lòng chọn một file video!");
+			return "general/video/add";
+		} else {
+			try {
+				String originalFileName = file.getOriginalFilename();
+
+				int index = originalFileName.lastIndexOf(".");
+
+				String ext = originalFileName.substring(index + 1);
+				String fileName = System.currentTimeMillis() + "." + ext;
+
+				String filePath = DirectoryPath.dir + "\\videos\\" + fileName;
+				file.transferTo(new File(filePath));
+				video.setVideopath("videos/" + fileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		videoserv.save(video);
+
+		return "general/video/list";
+	}
+
+	// đọc
+	@RequestMapping("list")
+	public String list(HttpServletRequest req, ModelMap model, @RequestParam(name = "rowEachPage", defaultValue = "10") int rowEachPage,
+			@RequestParam(name = "pages", defaultValue = "1") int pages,
+			@RequestParam(name = "id") int cateid) {
+		Pageable pageable = PageRequest.of(pages-1, rowEachPage);
+		
+		Page<Video> videopage = videoserv.findAllByCateid(cateid, pageable);
+		
+
+		// chuyển dữ liệu từ list lên biến categories
+		model.addAttribute("videos", videopage.getContent());
+		model.addAttribute("rowEachPage", rowEachPage);
+		model.addAttribute("pages", pages);
+		model.addAttribute("totalPages", videopage.getTotalPages());
+		
+		return "general/video/list";
+	}
+
+	// xóa
+	@GetMapping("delete/{id}")
+	public ModelAndView delete(ModelMap model, @PathVariable("id") int videoid) {
+		videoserv.deleteById(videoid);
+		model.addAttribute("message", "Video is deleted!!!!");
+		return new ModelAndView("redirect:video/searchpaginated", model);
+	}
+
+	// sửa
+	@GetMapping("edit/{id}")
+	public String editcategory(ModelMap model, @PathVariable("id") int videoid) {
+		Video video = videoserv.findById(videoid).orElse(null);
+		
+		if (video == null) {
+			model.addAttribute("msg", "Video không tồn tại!");
+			return "general/video/list";
+		} else {
+			
+		}
+		
+		return "general/video/edit";
+	}
+	
+	@PostMapping("edit")
+	public String editcategory(ModelMap model, @RequestParam(name = "catename") String catename,
+		@RequestParam(name = "icon") MultipartFile file) {
+		
+		Category cate = new Category();
+		
+		cate.setCategoryName(catename);
+		
+		try {
+			if (file.getSize() > 0) {
+				// Xóa ảnh cũ
+				if (cate.getImages() != null) {
+					final String oldIconName = cate.getImages();
+					
+					File oldIcon = new File(DirectoryPath.dir + "\\" + oldIconName);
+					
+					if (oldIcon.exists()) {
+						oldIcon.delete();
+					}
+				}
+				
+				// Lưu ảnh mới
+				String originalFileName = file.getOriginalFilename();
+
+				int index = originalFileName.lastIndexOf(".");
+
+				String ext = originalFileName.substring(index + 1);
+				String fileName = System.currentTimeMillis() + "." + ext;
+
+				String filePath = DirectoryPath.dir + "\\categoryIcons\\" + fileName;
+				file.transferTo(new File(filePath));
+				cate.setImages("categoryIcons/" + fileName);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "general/category/list";
+	}
+	
+	// tìm kiếm
+	@RequestMapping("search")
+	public String search(ModelMap model, @RequestParam(name = "name", required = false) String name) {
+		List<Category> list = null;
+
+		// có nội dung truyền về không, name là tùy chọn khi required=false
+		if (StringUtils.hasText(name)) {
+			list = cateserv.findByCategoryNameContaining(name);
+		} else {
+			list = cateserv.findAll();
+		}
+
+		model.addAttribute("categories", list);
+		return "admin/category/search";
+	}
+
+	/*
+	@PostMapping("saveOrUpdate")
+	public String saveupdate(ModelMap model, @RequestParam(name = "categoryName", required = true) String name,
+			@RequestParam(name = "icon") MultipartFile file) {
+		Category category = new Category();
+		category.setCategoryName(name);
+
+		if (file.isEmpty()) {
+			model.addAttribute("msg", "Vui lòng chọn một file ảnh!");
+		} else {
+			try {
+				String originalFileName = file.getOriginalFilename();
+
+				int index = originalFileName.lastIndexOf(".");
+
+				String ext = originalFileName.substring(index + 1);
+				String fileName = System.currentTimeMillis() + "." + ext;
+
+				String filePath = DirectoryPath.dir + "//" + fileName;
+				file.transferTo(new File(filePath));
+				category.setImages("categoryIcons/" + fileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		cateserv.save(category);
+
+		return "admin/home";
+	}*/
+}
