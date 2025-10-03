@@ -34,3 +34,5 @@ Lớp: sáng thứ 5, sáng thứ 6
   - Tiếp tục làm bài tập tuần 6: Thêm CRUD cho bảng category, đã test front end AJAX cho user và category.
 * Ngày 02/10/2025:
   - Nộp bài tập 1 tuần 7: validation và interceptor.
+* Ngày 03/10/2025:
+  - Nộp bài tập 2 tuần 7: mới chỉ hoàn thành demo 1 và 2 của spring security.
